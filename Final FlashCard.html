@@ -1,0 +1,2250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard Saya</title>
+    <style>
+        :root {
+            /* Warna tema pastel yang lebih menarik */
+            --primary-color: #8ecae6; /* Soft blue yang lebih cerah */
+            --secondary-color: #ffb4a2; /* Soft peach yang lebih hangat */
+            --success-color: #a7c957; /* Soft mint green yang lebih natural */
+            --danger-color: #e76f51; /* Soft coral yang lebih menonjol */
+            --warning-color: #f4a261; /* Soft cream yang lebih hangat */
+            --light-bg: #f8f9fa; /* Very light background */
+            --dark-text: #495057; /* Softer dark text */
+            --light-text: #f8f9fa;
+            --border-color: #dee2e6; /* Softer border */
+            --card-bg: #ffffff; /* White card background */
+            --modal-bg: rgba(142, 202, 230, 0.9); /* Translucent background using primary color */
+            --accent-color: #9d4edd; /* Warna aksen ungu */
+            --hover-color: #6a8eae; /* Warna hover */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            line-height: 1.6;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Halaman Login */
+        #loginPage {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+
+        .login-container {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-container h2 {
+            margin-bottom: 1.5rem;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .login-container input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.2);
+            outline: none;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 0.8rem;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .login-container button:hover {
+            background-color: #7b3db3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .user-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 1rem;
+        }
+
+        .user-list li {
+            background-color: var(--light-bg);
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-list li:hover {
+            background-color: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .user-actions button {
+            padding: 0.3rem 0.6rem;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .edit-user-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .delete-user-btn {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .edit-user-btn:hover {
+            background-color: #6a8eae;
+        }
+
+        .delete-user-btn:hover {
+            background-color: #c8553d;
+        }
+
+        /* Halaman Utama */
+        #mainPage {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .username-display {
+            font-style: italic;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            padding: 0.3rem 0.8rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+        }
+
+        .header button {
+            padding: 0.5rem 1rem;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .header button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav {
+            background-color: var(--card-bg);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .nav button {
+            padding: 0.5rem 1rem;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav button.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .nav button:hover:not(.active) {
+            background-color: var(--hover-color);
+            color: white;
+        }
+
+        .content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+
+        /* Halaman Latihan */
+        .upload-section {
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .upload-section input[type="file"] {
+            width: fit-content;
+            margin-right: 0.5rem;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section input[type="file"]::file-selector-button {
+            margin-right: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--secondary-color);
+            color: var(--dark-text);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .upload-section input[type="file"]::file-selector-button:hover {
+            background-color: #e6a28a;
+            transform: translateY(-2px);
+        }
+
+        .upload-section button {
+            width: fit-content;
+            padding: 0.5rem 1rem;
+            background-color: var(--secondary-color);
+            color: var(--dark-text);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .upload-section button:hover {
+            background-color: #e6a28a;
+            transform: translateY(-2px);
+        }
+
+        .session-controls button {
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.7rem 1.4rem;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .session-controls button:hover {
+            background-color: #7b3db3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Modal Sesi Flashcard */
+        #flashcardSessionModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content-session {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .close-session-modal {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark-text);
+            transition: all 0.2s ease;
+        }
+
+        .close-session-modal:hover {
+            color: var(--danger-color);
+            transform: scale(1.1);
+        }
+
+        .flashcard-display {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .flashcard-display .card-front, .flashcard-display .card-back {
+            width: 100%;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            border: 2px solid var(--primary-color); /* Border untuk area klik */
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flashcard-display .card-front:hover, .flashcard-display .card-back:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .flashcard-display .card-front {
+            background: linear-gradient(135deg, var(--primary-color), #6a8eae);
+            color: white;
+            font-size: 2rem;
+            position: relative;
+        }
+
+        .flashcard-display .card-back {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            display: none; /* Sembunyikan awalnya */
+        }
+
+        .flashcard-display .card-back.show {
+            display: block; /* Tampilkan saat dibalik */
+        }
+
+        .flashcard-display .sub-text {
+            font-size: 1rem;
+            color: #666;
+            margin: 0.25rem 0;
+        }
+
+        .flashcard-display .attempts {
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 0.5rem;
+        }
+
+        .flashcard-display .note-input {
+            width: 100%;
+            padding: 0.5rem;
+            margin: 1rem 0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .flashcard-display .note-input:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.2);
+            outline: none;
+        }
+
+        .flashcard-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            display: none; /* Sembunyikan awalnya */
+        }
+
+        .flashcard-buttons.show {
+            display: flex; /* Tampilkan saat dibalik */
+        }
+
+        .flashcard-buttons button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 150px;
+        }
+
+        .btn-correct {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-incorrect {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-correct:hover {
+            background-color: #8db446;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-incorrect:hover {
+            background-color: #c8553d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .card-info {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .card-info p {
+            margin: 0.2rem 0;
+        }
+
+        /* Halaman Kemajuan */
+        .progress-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .progress-card {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .progress-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        .progress-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-color);
+        }
+
+        .progress-card p {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        /* Halaman Edit Kartu */
+        .filter-section {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .filter-section label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .filter-section input, .filter-section select {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .filter-section input:focus, .filter-section select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.2);
+            outline: none;
+        }
+
+        .cards-table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--card-bg);
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--light-bg);
+            position: sticky;
+            top: 0;
+            font-weight: 600;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+
+        th:hover {
+            background-color: #e9ecef;
+        }
+
+        th.sort-asc::after {
+            content: " ↑";
+            font-weight: bold;
+        }
+
+        th.sort-desc::after {
+            content: " ↓";
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0,0,0,0.02);
+        }
+
+        tr:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .action-buttons button {
+            padding: 0.4rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+        }
+
+        .btn-edit {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #6a8eae;
+            transform: scale(1.1);
+        }
+
+        .btn-delete:hover {
+            background-color: #c8553d;
+            transform: scale(1.1);
+        }
+
+        .icon {
+            font-size: 1rem;
+        }
+
+        /* Modal Edit Kartu */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--dark-text);
+            transition: all 0.2s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--danger-color);
+            transform: scale(1.1);
+        }
+
+        .modal-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .modal-form .full-width {
+            grid-column: span 2;
+        }
+
+        .modal-form label {
+            display: block;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .modal-form input, .modal-form textarea, .modal-form select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            transition: all 0.3s ease;
+        }
+
+        .modal-form input:focus, .modal-form textarea:focus, .modal-form select:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.2);
+            outline: none;
+        }
+
+        .modal-form textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-buttons {
+            margin-top: 1rem;
+            text-align: right;
+        }
+
+        .modal-buttons button {
+            padding: 0.5rem 1rem;
+            margin-left: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .modal-buttons .save-btn {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .modal-buttons .cancel-btn {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .modal-buttons .save-btn:hover {
+            background-color: #8db446;
+            transform: translateY(-2px);
+        }
+
+        .modal-buttons .cancel-btn:hover {
+            background-color: #e0873a;
+            transform: translateY(-2px);
+        }
+
+        /* Responsif */
+        @media (max-width: 768px) {
+            .modal-form {
+                grid-template-columns: 1fr;
+            }
+            .modal-form .full-width {
+                grid-column: span 1;
+            }
+            .nav {
+                flex-wrap: wrap;
+            }
+            .nav button {
+                flex: 1 0 auto;
+                margin-bottom: 0.25rem;
+            }
+            .flashcard-display .card-front {
+                font-size: 1.5rem;
+            }
+            .flashcard-buttons {
+                flex-direction:row;
+                gap: 0.5rem;
+            }
+            .flashcard-buttons button {
+                width: 100%;
+                max-width: none;
+            }
+            .upload-section {
+                align-items: flex-start;
+            }
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Halaman Masuk -->
+    <div id="loginPage">
+        <div class="login-container">
+            <h2>Masuk ke Flashcard Saya</h2>
+            <input type="text" id="usernameInput" placeholder="Masukkan Username Baru" required>
+            <button id="addUserBtn">Tambah User</button>
+            <h3>Daftar User</h3>
+            <ul id="userList" class="user-list">
+                <!-- Daftar user akan dimuat di sini -->
+            </ul>
+            <button id="clearAllUsersBtn">Hapus Semua User</button>
+        </div>
+    </div>
+
+    <!-- Halaman Utama -->
+    <div id="mainPage" class="hidden">
+        <div class="header">
+            <div class="logo">Flashcard Saya</div>
+            <div class="username-display" id="currentUsernameDisplay">User</div>
+            <button id="logoutBtn">Keluar</button>
+        </div>
+        <div class="nav">
+            <button id="navTrainBtn" class="active">Latihan</button>
+            <button id="navProgressBtn">Kemajuan</button>
+            <button id="navEditBtn">Edit Kartu</button>
+        </div>
+        <div class="content">
+            <!-- Halaman Latihan -->
+            <div id="trainingPage">
+                <div class="upload-section">
+                    <input type="file" id="deckUpload" accept=".json" />
+                    <button id="uploadDeckBtn">Unggah Deck</button>
+                </div>
+                <div class="session-controls">
+                    <button id="startSessionBtn">Mulai Sesi</button>
+                </div>
+            </div>
+
+            <!-- Halaman Kemajuan -->
+            <div id="progressPage" class="hidden">
+                <h2>Laporan Kemajuan</h2>
+                <div class="progress-grid">
+                    <div class="progress-card">
+                        <h3>Total Kartu</h3>
+                        <p id="totalCardsCount">0</p>
+                    </div>
+                    <div class="progress-card">
+                        <h3>Belum Dicoba</h3>
+                        <p id="newCardsCount">0</p>
+                    </div>
+                    <div class="progress-card">
+                        <h3>Waktu Ulang</h3>
+                        <p id="dueCardsCount">0</p>
+                    </div>
+                    <!-- Dinamis untuk tingkat kesulitan dan SRS -->
+                </div>
+                <div id="difficultyProgress"></div>
+                <div id="srsProgress"></div>
+            </div>
+
+            <!-- Halaman Edit Kartu -->
+            <div id="editPage" class="hidden">
+                <h2>Edit Kartu</h2>
+                <div class="filter-section">
+                    <label for="filterText">Cari:</label>
+                    <input type="text" id="filterText" placeholder="Cari bagian depan/belakang...">
+                    <label for="filterDifficulty">Filter Tingkat Kesulitan:</label>
+                    <select id="filterDifficulty">
+                        <option value="">Semua</option>
+                        <option value="ulangi">Ulangi</option>
+                        <option value="ragu">Ragu</option>
+                        <option value="cukup">Cukup</option>
+                        <option value="hafal">Hafal</option>
+                    </select>
+                    <label for="filterSRS">Filter Tingkat SRS:</label>
+                    <select id="filterSRS">
+                        <option value="">Semua</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+                <div class="cards-table-container">
+                    <table id="cardsTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="id_kartu">ID</th>
+                                <th data-sort="bagian_depan">Bagian Depan</th>
+                                <th data-sort="bagian_belakang_1">Bagian Belakang 1</th>
+                                <th data-sort="bagian_belakang_2">Bagian Belakang 2</th>
+                                <th data-sort="tingkat_kesulitan">Tingkat Kesulitan</th>
+                                <th data-sort="tingkat_SRS">Tingkat SRS</th>
+                                <th data-sort="jumlah_percobaan">Jumlah Percobaan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cardsTableBody">
+                            <!-- Isi tabel akan diisi secara dinamis -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Sesi Flashcard -->
+    <div id="flashcardSessionModal" class="hidden">
+        <div class="modal-content-session">
+            <span class="close-session-modal">&times;</span>
+            <div class="flashcard-display" id="flashcardDisplay">
+                <!-- Konten kartu akan dimuat di sini -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Kartu -->
+    <div id="editCardModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Edit Kartu</h2>
+            <form id="editCardForm" class="modal-form">
+                <input type="hidden" id="editCardId">
+
+                <div class="full-width">
+                    <label for="editFront">Bagian Depan:</label>
+                    <input type="text" id="editFront" required>
+                </div>
+                <div class="full-width">
+                    <label for="editBack1">Bagian Belakang 1:</label>
+                    <input type="text" id="editBack1" required>
+                </div>
+                <div class="full-width">
+                    <label for="editBack2">Bagian Belakang 2:</label>
+                    <input type="text" id="editBack2" required>
+                </div>
+                <div class="full-width">
+                    <label for="editNote">Catatan Pengguna:</label>
+                    <textarea id="editNote"></textarea>
+                </div>
+
+                <div>
+                    <label for="editDifficulty">Tingkat Kesulitan:</label>
+                    <select id="editDifficulty" required>
+                        <option value="ulangi">Ulangi</option>
+                        <option value="ragu">Ragu</option>
+                        <option value="cukup">Cukup</option>
+                        <option value="hafal">Hafal</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="editSRS">Tingkat SRS:</label>
+                    <select id="editSRS" required>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="editAttempts">Jumlah Percobaan:</label>
+                    <input type="number" id="editAttempts" min="1" required>
+                </div>
+                <div>
+                    <label for="editSessionId">ID Sesi:</label>
+                    <input type="text" id="editSessionId" readonly>
+                </div>
+
+                <div class="full-width">
+                    <label for="editGuessTime">Waktu Lama Tebakan (s):</label>
+                    <input type="number" id="editGuessTime" step="any" min="0">
+                </div>
+                <div class="full-width">
+                    <label for="editReadTime">Lama Baca Kartu (s):</label>
+                    <input type="number" id="editReadTime" step="any" min="0">
+                </div>
+
+                <div class="full-width">
+                    <label for="editPrevStamp">Waktu Sebelumnya:</label>
+                    <input type="text" id="editPrevStamp" readonly>
+                </div>
+                <div class="full-width">
+                    <label for="editCurrentStamp">Waktu Sekarang:</label>
+                    <input type="text" id="editCurrentStamp" readonly>
+                </div>
+                <div class="full-width">
+                    <label for="editTimeDiff">Selisih Waktu (jam):</label>
+                    <input type="number" id="editTimeDiff" step="any" min="0" readonly>
+                </div>
+                <div class="full-width">
+                    <label for="editNextReview">Waktu Latihan Ulang:</label>
+                    <input type="text" id="editNextReview" readonly>
+                </div>
+                <div class="full-width">
+                    <label for="editResult">Hasil Tebakan:</label>
+                    <select id="editResult">
+                        <option value="0">Salah</option>
+                        <option value="1">Benar</option>
+                    </select>
+                </div>
+
+                <div class="modal-buttons full-width">
+                    <button type="button" class="cancel-btn">Batal</button>
+                    <button type="submit" class="save-btn">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+/* -------------------------
+   JavaScript final lengkap
+   - Menggunakan ensemble ML function yang Anda berikan
+   - Fix: clear file input setelah upload
+   - Fix: KartuSesi logic sesuai aturan (due -> KartuBaru -> random fill)
+   - Random cards: flagged isRandom=true, tidak diupdate saat sesi, tidak dipindahkan dari store
+   - Non-random cards: dihapus dari store saat dipilih ke sesi, dan langsung dikembalikan ke store sesuai tingkat_kesulitan saat di-submit atau saat sesi ditutup
+   - Mencegah random card muncul 2x di 1 sesi
+   ------------------------- */
+
+    // --- KONFIGURASI ---
+    const SRS_INTERVALS = [0, 5/60, 15/60, 24*1, 24*3, 24*7, 24*16, 24*35]; // Jam
+
+    // --- STATE APLIKASI ---
+    let currentUser = null;
+    let allCards = {
+        KartuBaru: [],
+        KartuUlangi: [],
+        KartuRagu: [],
+        KartuCukup: [],
+        KartuHafal: []
+    };
+    let currentSessionCards = []; // Kartu untuk sesi ini, dipilih dari semua store
+    let currentCardIndex = 0;
+    let startTimeGuess = null;
+    let startTimeRead = null;
+    let sessionStartTime = null;
+    let isFlipped = false;
+    let currentSort = { column: null, direction: 'asc' };
+
+    // --- FUNGSI BANTU ---
+    function getCurrentWIBTime() {
+        const now = new Date();
+        const wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+        return wibTime.toISOString().slice(0, 19).replace('T', ' ');
+    }
+
+    function generateId() {
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+        const timestamp = now.getTime().toString().slice(-6);
+        return `K-${dateStr}-${timestamp}`;
+    }
+
+    function getUserId(username) {
+        return 'user_' + username;
+    }
+
+    function loadUserData(username) {
+        const userId = getUserId(username);
+        const stored = localStorage.getItem(userId);
+        if (stored) {
+            try {
+                const data = JSON.parse(stored);
+                allCards = data;
+            } catch (e) {
+                console.error("Gagal memuat data pengguna:", e);
+                allCards = { KartuBaru: [], KartuUlangi: [], KartuRagu: [], KartuCukup: [], KartuHafal: [] };
+            }
+        } else {
+            allCards = { KartuBaru: [], KartuUlangi: [], KartuRagu: [], KartuCukup: [], KartuHafal: [] };
+        }
+    }
+
+    function saveUserData(username) {
+        const userId = getUserId(username);
+        localStorage.setItem(userId, JSON.stringify(allCards));
+        // Simpan sesi jika ada
+        if (currentSessionCards.length > 0) {
+            const sessionUserId = userId + '_KartuSesi';
+            localStorage.setItem(sessionUserId, JSON.stringify(currentSessionCards));
+        } else {
+             // Hapus data sesi jika tidak ada kartu
+             const sessionUserId = userId + '_KartuSesi';
+             localStorage.removeItem(sessionUserId);
+        }
+    }
+
+    function loadSessionData(username) {
+        const userId = getUserId(username) + '_KartuSesi';
+        const stored = localStorage.getItem(userId);
+        if (stored) {
+            try {
+                currentSessionCards = JSON.parse(stored);
+            } catch (e) {
+                console.error("Gagal memuat data sesi:", e);
+                currentSessionCards = [];
+            }
+        } else {
+            currentSessionCards = [];
+        }
+    }
+
+    function saveSessionData(username) {
+        const userId = getUserId(username) + '_KartuSesi';
+        if (currentSessionCards.length > 0) {
+            localStorage.setItem(userId, JSON.stringify(currentSessionCards));
+        } else {
+            localStorage.removeItem(userId);
+        }
+    }
+
+    function normalizeDeck(deck) {
+        const normalized = [];
+        for (let i = 0; i < deck.length; i++) {
+            const card = deck[i];
+            if (card.bagian_depan && card.bagian_belakang_1 && card.bagian_belakang_2) {
+                normalized.push({
+                    id_kartu: generateId() + '-' + (i+1).toString().padStart(3, '0'),
+                    bagian_depan: card.bagian_depan,
+                    bagian_belakang_1: card.bagian_belakang_1,
+                    bagian_belakang_2: card.bagian_belakang_2,
+                    catatan_pengguna: card.catatan_pengguna || "",
+                    hasil_tebakan: 0,
+                    tingkat_kesulitan: "baru",
+                    tingkat_SRS: 1,
+                    jumlah_percobaan: 0,
+                    waktu_lama_tebakan: 0,
+                    lama_baca_kartu: 0,
+                    stamp_waktu_sebelumnya: "",
+                    stamp_waktu_sekarang: "",
+                    selisih_waktu_jam: 0,
+                    waktu_latihan_ulang: getCurrentWIBTime(),
+                    id_sesi: ""
+                });
+            }
+        }
+        return normalized;
+    }
+
+    // ===== Tambahan penting: fungsi untuk menghapus kartu dari semua store =====
+    function removeCardFromStores(card) {
+        if (!card || !card.id_kartu) return;
+        for (const key in allCards) {
+            allCards[key] = allCards[key].filter(c => c.id_kartu !== card.id_kartu);
+        }
+    }
+    // ==========================================================================
+
+    // ===== ML ensemble function (you provided) =====
+    
+function predictDifficulty(row) {
+    const trees = [
+        function(row){
+if (row[4] < 27.26861111111111) {
+  if (row[3] < 2.187) {
+    if (row[0] < 1) {
+      return "ulangi";
+    } else {
+      if (row[3] < 1.415) {
+        if (row[1] < 1) {
+          return "hafal";
+        } else {
+          return "hafal";
+        }
+      } else {
+        if (row[2] < 2.669) {
+          if (row[3] < 1.433) {
+            return "cukup";
+          } else {
+            if (row[3] < 1.876) {
+              if (row[0] < 1) {
+                return "hafal";
+              } else {
+                return "hafal";
+              }
+            } else {
+              if (row[1] < 3) {
+                return "hafal";
+              } else {
+                return "hafal";
+              }
+            }
+          }
+        } else {
+          return "cukup";
+        }
+      }
+    }
+  } else {
+    if (row[3] < 4.963) {
+      if (row[0] < 1) {
+        if (row[3] < 2.428) {
+          return "ulangi";
+        } else {
+          if (row[0] < 0) {
+            return "ulangi";
+          } else {
+            return "ulangi";
+          }
+        }
+      } else {
+        if (row[4] < 24.261388888888888) {
+          if (row[3] < 2.556) {
+            if (row[2] < 4.605) {
+              if (row[1] < 1) {
+                return "cukup";
+              } else {
+                return "cukup";
+              }
+            } else {
+              return "hafal";
+            }
+          } else {
+            if (row[4] < 3.1172222222222223) {
+              if (row[1] < 2) {
+                if (row[3] < 4.014) {
+                  if (row[2] < 6.819) {
+                    if (row[4] < 0) {
+                      return "hafal";
+                    } else {
+                      return "hafal";
+                    }
+                  } else {
+                    if (row[4] < 0) {
+                      return "ragu";
+                    } else {
+                      return "ragu";
+                    }
+                  }
+                } else {
+                  if (row[3] < 4.721) {
+                    if (row[2] < 1.133) {
+                      return "cukup";
+                    } else {
+                      return "cukup";
+                    }
+                  } else {
+                    return "hafal";
+                  }
+                }
+              } else {
+                return "ragu";
+              }
+            } else {
+              return "hafal";
+            }
+          }
+        } else {
+          return "cukup";
+        }
+      }
+    } else {
+      if (row[0] < 1) {
+        if (row[2] < 0.783) {
+          return "ulangi";
+        } else {
+          return "ulangi";
+        }
+      } else {
+        if (row[1] < 2) {
+          if (row[0] < 1) {
+            return "cukup";
+          } else {
+            return "cukup";
+          }
+        } else {
+          if (row[3] < 13.039) {
+            return "hafal";
+          } else {
+            return "ragu";
+          }
+        }
+      }
+    }
+  }
+} else {
+  if (row[0] < 1) {
+    return "hafal";
+  } else {
+    return "hafal";
+  }
+}
+        },
+        function(row){
+if (row[3] < 1.551) {
+  if (row[4] < 0) {
+    return "hafal";
+  } else {
+    return "hafal";
+  }
+} else {
+  if (row[0] < 1) {
+    if (row[4] < 6.114444444444445) {
+      if (row[1] < 1) {
+        return "ulangi";
+      } else {
+        return "ulangi";
+      }
+    } else {
+      if (row[1] < 2) {
+        return "ulangi";
+      } else {
+        return "ulangi";
+      }
+    }
+  } else {
+    if (row[3] < 2.708) {
+      if (row[3] < 2.111) {
+        if (row[2] < 1.536) {
+          if (row[1] < 1) {
+            return "hafal";
+          } else {
+            return "hafal";
+          }
+        } else {
+          if (row[2] < 1.952) {
+            if (row[3] < 1.876) {
+              if (row[2] < 1.597) {
+                return "cukup";
+              } else {
+                if (row[2] < 1.597) {
+                  return "hafal";
+                } else {
+                  return "hafal";
+                }
+              }
+            } else {
+              return "cukup";
+            }
+          } else {
+            if (row[4] < 0.029166666666666667) {
+              return "cukup";
+            } else {
+              return "cukup";
+            }
+          }
+        }
+      } else {
+        if (row[3] < 2.204) {
+          if (row[3] < 2.111) {
+            return "hafal";
+          } else {
+            return "hafal";
+          }
+        } else {
+          if (row[2] < 5.269) {
+            if (row[1] < 2) {
+              if (row[2] < 5.138) {
+                if (row[3] < 2.595) {
+                  if (row[2] < 1.819) {
+                    return "hafal";
+                  } else {
+                    return "hafal";
+                  }
+                } else {
+                  return "hafal";
+                }
+              } else {
+                return "hafal";
+              }
+            } else {
+              return "cukup";
+            }
+          } else {
+            return "ragu";
+          }
+        }
+      }
+    } else {
+      if (row[4] < 3.11) {
+        if (row[3] < 4.014) {
+          if (row[3] < 2.896) {
+            if (row[0] < 1) {
+              return "cukup";
+            } else {
+              return "cukup";
+            }
+          } else {
+            if (row[4] < 3.0866666666666664) {
+              if (row[3] < 2.939) {
+                return "ragu";
+              } else {
+                return "hafal";
+              }
+            } else {
+              return "ragu";
+            }
+          }
+        } else {
+          if (row[3] < 4.466) {
+            return "cukup";
+          } else {
+            if (row[4] < 0) {
+              return "cukup";
+            } else {
+              return "cukup";
+            }
+          }
+        }
+      } else {
+        if (row[2] < 0.867) {
+          return "cukup";
+        } else {
+          return "hafal";
+        }
+      }
+    }
+  }
+}
+        }
+    ];
+
+    let votes = {};
+    for (let t of trees) {
+        let p = t(row);
+        votes[p] = (votes[p] || 0) + 1;
+    }
+
+    let best = null, max = -1;
+    for (let k in votes) {
+        if (votes[k] > max) { max = votes[k]; best = k; }
+    }
+    return best;
+}
+    // ================================================================
+
+    function updateProgressPage() {
+        const total = Object.values(allCards).flat().length;
+        document.getElementById('totalCardsCount').textContent = total;
+
+        const newCount = allCards.KartuBaru.length;
+        document.getElementById('newCardsCount').textContent = newCount;
+
+        const now = new Date(getCurrentWIBTime().replace(' ', 'T') + 'Z');
+        const dueCount = Object.values(allCards).flat().filter(card => {
+            const nextReview = new Date(card.waktu_latihan_ulang.replace(' ', 'T') + 'Z');
+            return nextReview <= now;
+        }).length;
+        document.getElementById('dueCardsCount').textContent = dueCount;
+
+        // difficulty counts
+        const diffCounts = { ulangi: 0, ragu: 0, cukup: 0, hafal: 0 };
+        for (const card of Object.values(allCards).flat()) {
+            if (diffCounts.hasOwnProperty(card.tingkat_kesulitan)) diffCounts[card.tingkat_kesulitan]++;
+        }
+
+        // srs counts
+        const srsCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0 };
+        for (const card of Object.values(allCards).flat()) {
+            if (srsCounts.hasOwnProperty(card.tingkat_SRS)) srsCounts[card.tingkat_SRS]++;
+        }
+
+        // Render simple cards (keamanan fallback)
+        const diffDiv = document.getElementById('difficultyProgress');
+        diffDiv.innerHTML = '';
+        const srsDiv = document.getElementById('srsProgress');
+        srsDiv.innerHTML = '';
+
+        // Buat area judul + canvas untuk setiap grafik
+        diffDiv.innerHTML = `<h3>Distribusi Tingkat Kesulitan</h3><canvas id="diffChart" width="600" height="200"></canvas>`;
+        srsDiv.innerHTML = `<h3>Distribusi Tingkat SRS</h3><canvas id="srsChart" width="600" height="200"></canvas>`;
+
+        // Draw charts
+        drawBarChart('diffChart', Object.keys(diffCounts), Object.values(diffCounts));
+        drawBarChart('srsChart', Object.keys(srsCounts).map(k => 'SRS ' + k), Object.values(srsCounts));
+    }
+
+    // simple bar chart drawing using Canvas 2D
+    function drawBarChart(canvasId, labels, values) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        // clear
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const padding = 30;
+        const chartWidth = canvas.width - padding * 2;
+        const chartHeight = canvas.height - padding * 2;
+        const maxVal = Math.max(...values, 1);
+        const barWidth = chartWidth / labels.length * 0.7;
+        const gap = (chartWidth / labels.length) - barWidth;
+
+        // axis
+        ctx.strokeStyle = '#ccc';
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, padding + chartHeight);
+        ctx.lineTo(padding + chartWidth, padding + chartHeight);
+        ctx.stroke();
+
+        // bars
+        for (let i = 0; i < labels.length; i++) {
+            const val = values[i];
+            const barHeight = (val / maxVal) * (chartHeight - 20);
+            const x = padding + i * (barWidth + gap) + gap/2;
+            const y = padding + chartHeight - barHeight;
+
+            // bar fill (neutral)
+            ctx.fillStyle = '#888';
+            ctx.fillRect(x, y, barWidth, barHeight);
+
+            // label
+            ctx.fillStyle = '#333';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(labels[i], x + barWidth/2, padding + chartHeight + 14);
+
+            // value
+            ctx.fillText(String(val), x + barWidth/2, y - 6);
+        }
+    }
+
+    function renderCardsTable(filterText = '', filterDifficulty = '', filterSRS = '') {
+        const tableBody = document.getElementById('cardsTableBody');
+        tableBody.innerHTML = '';
+        const allStores = [...allCards.KartuBaru, ...allCards.KartuUlangi, ...allCards.KartuRagu, ...allCards.KartuCukup, ...allCards.KartuHafal];
+
+        const filteredCards = allStores.filter(card => {
+            // Perubahan: hanya mencari pada ID, Bagian Depan, Bagian Belakang 1, Bagian Belakang 2
+            const q = filterText.toLowerCase();
+            const matchesText = (
+                (card.id_kartu || '').toLowerCase().includes(q) ||
+                (card.bagian_depan || '').toLowerCase().includes(q) ||
+                (card.bagian_belakang_1 || '').toLowerCase().includes(q) ||
+                (card.bagian_belakang_2 || '').toLowerCase().includes(q)
+            );
+            const matchesDiff = filterDifficulty ? card.tingkat_kesulitan === filterDifficulty : true;
+            const matchesSRS = filterSRS ? card.tingkat_SRS == filterSRS : true;
+            return matchesText && matchesDiff && matchesSRS;
+        });
+
+        // Sort cards if needed
+        if (currentSort.column) {
+            filteredCards.sort((a, b) => {
+                let aVal = a[currentSort.column];
+                let bVal = b[currentSort.column];
+                
+                // Handle numeric sorting for jumlah_percobaan and tingkat_SRS
+                if (currentSort.column === 'jumlah_percobaan' || currentSort.column === 'tingkat_SRS') {
+                    aVal = parseInt(aVal);
+                    bVal = parseInt(bVal);
+                }
+                
+                if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        }
+
+        filteredCards.forEach(card => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${card.id_kartu}</td>
+                <td>${card.bagian_depan}</td>
+                <td>${card.bagian_belakang_1}</td>
+                <td>${card.bagian_belakang_2}</td>
+                <td>${card.tingkat_kesulitan}</td>
+                <td>${card.tingkat_SRS}</td>
+                <td>${card.jumlah_percobaan || 0}</td>
+                <td class="action-buttons">
+                    <button class="btn-edit" data-id="${card.id_kartu}" title="Edit">
+                        <span class="icon">✏️</span>
+                    </button>
+                    <button class="btn-delete" data-id="${card.id_kartu}" title="Hapus">
+                        <span class="icon">🗑️</span>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    // --- MANAJEMEN USER (Login Page) ---
+    function loadUsers() {
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const userList = document.getElementById('userList');
+        userList.innerHTML = '';
+        users.forEach(user => {
+            const li = document.createElement('li');
+            // tampilkan nama + tombol edit + hapus
+            li.innerHTML = `
+                <span class="user-name">${user}</span>
+                <div class="user-actions">
+                    <button class="edit-user-btn" data-username="${user}">Edit</button>
+                    <button class="delete-user-btn" data-username="${user}">Hapus</button>
+                </div>
+            `;
+            // klik pada seluruh baris => login
+            li.onclick = (e) => {
+                // Cegah event bubbling jika klik pada tombol edit/hapus
+                if (!e.target.classList.contains('edit-user-btn') && !e.target.classList.contains('delete-user-btn')) {
+                    login(user);
+                }
+            };
+            userList.appendChild(li);
+        });
+        // tambahkan event delegation untuk tombol edit/hapus (agar konsisten)
+        userList.querySelectorAll('.delete-user-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation(); // Cegah event bubbling ke li
+                const username = e.currentTarget.getAttribute('data-username');
+                if (!username) return;
+                if (confirm(`Hapus user '${username}' beserta data-nya?`)) {
+                    // hapus dari daftar users
+                    const usersArr = JSON.parse(localStorage.getItem('users')) || [];
+                    const idx = usersArr.indexOf(username);
+                    if (idx > -1) {
+                        usersArr.splice(idx, 1);
+                        localStorage.setItem('users', JSON.stringify(usersArr));
+                    }
+                    // hapus data user dari localStorage
+                    const userKey = getUserId(username);
+                    const sessionKey = userKey + '_KartuSesi';
+                    localStorage.removeItem(userKey);
+                    localStorage.removeItem(sessionKey);
+                    loadUsers();
+                }
+            };
+        });
+        userList.querySelectorAll('.edit-user-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation(); // Cegah event bubbling ke li
+                const username = e.currentTarget.getAttribute('data-username');
+                if (!username) return;
+                const newName = prompt("Ubah nama user:", username);
+                if (!newName) return;
+                const trimmed = newName.trim();
+                if (!trimmed) { alert("Nama tidak boleh kosong."); return; }
+
+                const usersArr = JSON.parse(localStorage.getItem('users')) || [];
+                if (usersArr.includes(trimmed)) {
+                    alert("Nama user sudah digunakan. Pilih nama lain.");
+                    return;
+                }
+
+                // lakukan migrasi data: pindahkan user_username -> user_newname
+                const oldKey = getUserId(username);
+                const newKey = getUserId(trimmed);
+                const oldData = localStorage.getItem(oldKey);
+                if (oldData) {
+                    localStorage.setItem(newKey, oldData);
+                    localStorage.removeItem(oldKey);
+                }
+                // sesi juga
+                const oldSession = oldKey + '_KartuSesi';
+                const newSession = newKey + '_KartuSesi';
+                const oldSessionData = localStorage.getItem(oldSession);
+                if (oldSessionData) {
+                    localStorage.setItem(newSession, oldSessionData);
+                    localStorage.removeItem(oldSession);
+                }
+
+                // update daftar users
+                const idx = usersArr.indexOf(username);
+                if (idx > -1) {
+                    usersArr[idx] = trimmed;
+                } else {
+                    usersArr.push(trimmed);
+                }
+                localStorage.setItem('users', JSON.stringify(usersArr));
+                loadUsers();
+            };
+        });
+    }
+
+    function login(username) {
+        currentUser = username;
+        document.getElementById('currentUsernameDisplay').textContent = currentUser;
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('mainPage').classList.remove('hidden');
+        loadUserData(currentUser);
+        updateProgressPage();
+        renderCardsTable();
+    }
+
+    function logout() {
+        currentUser = null;
+        document.getElementById('mainPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+        currentSessionCards = [];
+        currentCardIndex = 0;
+        loadUsers();
+    }
+
+    // --- EVENT LISTENERS LOGIN PAGE ---
+    document.getElementById('addUserBtn').addEventListener('click', function() {
+        const username = document.getElementById('usernameInput').value.trim();
+        if (!username) {
+            alert("Username tidak boleh kosong.");
+            return;
+        }
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        if (users.includes(username)) {
+            alert(`User '${username}' sudah ada. Silakan pilih dari daftar.`);
+            return;
+        }
+        users.push(username);
+        localStorage.setItem('users', JSON.stringify(users));
+        document.getElementById('usernameInput').value = '';
+        loadUsers();
+    });
+
+    document.getElementById('clearAllUsersBtn').addEventListener('click', function() {
+        if (confirm('Apakah Anda yakin ingin menghapus semua user? Semua data akan dihapus.')) {
+            localStorage.removeItem('users');
+            const keys = Object.keys(localStorage);
+            keys.forEach(key => {
+                if (key.startsWith('user_')) {
+                    localStorage.removeItem(key);
+                }
+            });
+            loadUsers();
+        }
+    });
+
+    // --- EVENT LISTENERS MAIN PAGE ---
+    document.getElementById('uploadDeckBtn').addEventListener('click', function() {
+        const fileInput = document.getElementById('deckUpload');
+        const file = fileInput.files[0];
+        if (!file) {
+            alert("Silakan pilih file deck terlebih dahulu.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                let deck = JSON.parse(e.target.result);
+                if (typeof deck === 'string') {
+                    deck = JSON.parse(deck);
+                }
+                const normalizedDeck = normalizeDeck(deck);
+                allCards.KartuBaru.push(...normalizedDeck);
+                saveUserData(currentUser);
+                alert(`Berhasil mengunggah dan menambahkan ${normalizedDeck.length} kartu baru.`);
+                renderCardsTable();
+                updateProgressPage();
+            } catch (error) {
+                console.error("Error saat memproses deck:", error);
+                alert("Gagal membaca file deck. Pastikan format JSON benar.");
+            } finally {
+                // CLEAR file input to prevent accidental double upload
+                fileInput.value = '';
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    // Helper: shuffle array in-place (Fisher-Yates)
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    // MAIN: Start session logic (10 cards selection)
+    document.getElementById('startSessionBtn').addEventListener('click', function() {
+        loadSessionData(currentUser);
+
+        // If we resumed a saved session: ensure non-random session cards are not duplicated in stores
+        if (currentSessionCards.length > 0) {
+            currentSessionCards.forEach(c => {
+                if (!c.isRandom) removeCardFromStores(c);
+            });
+            saveUserData(currentUser);
+        }
+
+        if (currentSessionCards.length > 0) {
+            if (!confirm("Sesi sedang berlangsung. Apakah Anda ingin melanjutkan sesi yang tersimpan?")) {
+                // clear stored session and start fresh
+                currentSessionCards = [];
+                saveSessionData(currentUser);
+            } else {
+                // resume
+                document.getElementById('flashcardSessionModal').classList.remove('hidden');
+                showCurrentCardInModal();
+                return;
+            }
+        }
+
+        // Build list of candidate cards
+        const now = new Date(getCurrentWIBTime().replace(' ', 'T') + 'Z');
+        const allStoresFlat = [...allCards.KartuBaru, ...allCards.KartuUlangi, ...allCards.KartuRagu, ...allCards.KartuCukup, ...allCards.KartuHafal];
+
+        // Find due cards
+        const overdueCards = allStoresFlat.filter(card => {
+            const nextReview = new Date(card.waktu_latihan_ulang.replace(' ', 'T') + 'Z');
+            return nextReview <= now;
+        });
+
+        // Prioritize by tingkat_kesulitan
+        const priorityOrder = { 'ulangi': 0, 'ragu': 1, 'cukup': 2, 'hafal': 3 };
+        overdueCards.sort((a, b) => (priorityOrder[a.tingkat_kesulitan] || 99) - (priorityOrder[b.tingkat_kesulitan] || 99));
+
+        currentSessionCards = [];
+
+        // Take up to 10 from overdue in order
+        const takeOverdue = overdueCards.slice(0, 10);
+        // When selecting non-random cards to session, remove them from their stores to avoid duplication
+        takeOverdue.forEach(c => {
+            removeCardFromStores(c);
+            // mark as not random explicitly
+            c.isRandom = false;
+            currentSessionCards.push(c);
+        });
+
+        // If less than 10, fill from KartuBaru (new cards)
+        if (currentSessionCards.length < 10) {
+            const needed = 10 - currentSessionCards.length;
+            const availableNew = allCards.KartuBaru.slice(0, needed);
+            availableNew.forEach(c => {
+                removeCardFromStores(c);
+                c.isRandom = false;
+                currentSessionCards.push(c);
+            });
+        }
+
+        // If still less than 10 -> fill with random cards from entire deck (but do NOT remove them from stores)
+        if (currentSessionCards.length < 10) {
+            const needed = 10 - currentSessionCards.length;
+            // Build pool excluding already-chosen ids
+            const chosenIds = new Set(currentSessionCards.map(c => c.id_kartu));
+            // Use all available cards as pool (including KartuBaru etc)
+            const pool = [...allCards.KartuBaru, ...allCards.KartuUlangi, ...allCards.KartuRagu, ...allCards.KartuCukup, ...allCards.KartuHafal]
+                .filter(c => !chosenIds.has(c.id_kartu));
+            // Shuffle pool and take up to needed, ensuring no duplicates within session
+            shuffleArray(pool);
+            const selectedRandoms = pool.slice(0, needed);
+            selectedRandoms.forEach(c => {
+                // Make shallow copy to avoid accidental mutations on original store items
+                const copy = Object.assign({}, c);
+                copy.isRandom = true;
+                // mark a label property so UI can show (isRandom true)
+                currentSessionCards.push(copy);
+            });
+            if (selectedRandoms.length > 0) {
+                alert(`Dikarenakan belum waktunya beberapa kartu dimainkan ulang, pada sesi ini ditambahkan ${selectedRandoms.length} kartu acak (ditandai). Hasil pada kartu acak tidak akan mengubah jadwal atau tempat penyimpanan.`);
+            }
+        }
+
+        // If still zero (no cards anywhere) -> warn and return
+        if (currentSessionCards.length === 0) {
+            alert("Tidak ada kartu yang tersedia untuk sesi latihan.");
+            return;
+        }
+
+        // Shuffle session cards to randomize order within the constraints already selected
+        shuffleArray(currentSessionCards);
+
+        currentCardIndex = 0;
+        sessionStartTime = getCurrentWIBTime();
+
+        document.getElementById('flashcardSessionModal').classList.remove('hidden');
+        showCurrentCardInModal();
+        saveSessionData(currentUser);
+        saveUserData(currentUser);
+    });
+
+    function showCurrentCardInModal() {
+        if (currentCardIndex >= currentSessionCards.length) {
+            finishSession();
+            return;
+        }
+
+        const card = currentSessionCards[currentCardIndex];
+        const display = document.getElementById('flashcardDisplay');
+        isFlipped = false;
+
+        // Add visible marker if isRandom - menggunakan ukuran teks yang lebih kecil
+        const randomLabel = card.isRandom ? '<div class="card-info"><p style="color:#b33; font-size:1em; margin:0;">(Kartu Acak)</p></div>' : '';
+
+        display.innerHTML = `
+            <div class="card-front">
+                <h2>${card.bagian_depan}</h2>
+                <div class="card-info">
+                    <p style="font-size:0.8em; margin:0;">Klik untuk melihat jawaban</p>
+                </div>
+                ${randomLabel}
+            </div>
+            <div class="card-back">
+                <div class="card-back-content">
+                    <p class="sub-text">${card.bagian_belakang_1}</p>
+                    <p class="sub-text">${card.bagian_belakang_2}</p>
+                    <p class="attempts">Percobaan: ${card.jumlah_percobaan || 0}, Lama Tebakan: ${(card.waktu_lama_tebakan || 0).toFixed(1)}s</p>
+                </div>
+                <p><strong>Catatan:</strong></p>
+                <textarea class="note-input" id="noteInput" placeholder="Tambahkan catatan...">${card.catatan_pengguna || ''}</textarea>
+            </div>
+            <div class="flashcard-buttons">
+                <button class="btn-incorrect">Salah</button>
+                <button class="btn-correct">Benar</button>
+            </div>
+        `;
+
+        startTimeGuess = new Date();
+        startTimeRead = null;
+
+        const frontElem = document.querySelector('.card-front');
+        const correctBtn = document.querySelector('.btn-correct');
+        const incorrectBtn = document.querySelector('.btn-incorrect');
+
+        // ensure only one click listener set (remove previous via cloning)
+        frontElem.onclick = flipCard;
+        correctBtn.onclick = () => submitAnswer(1);
+        incorrectBtn.onclick = () => submitAnswer(0);
+
+        // Pasang handler close modal sekali (menimpa event lama) untuk mencegah duplikasi handler
+        const closeBtn = document.querySelector('.close-session-modal');
+        closeBtn.onclick = function() {
+            if (currentSessionCards.length > 0 && currentCardIndex < currentSessionCards.length) {
+                if (confirm("Sesi sedang berlangsung. Apakah Anda yakin ingin keluar dari sesi?")) {
+                    // Kembalikan kartu yang belum selesai ke tempat asalnya (non-random only)
+                    for (let i = currentCardIndex; i < currentSessionCards.length; i++) {
+                        const cardToReturn = currentSessionCards[i];
+                        if (cardToReturn.isRandom) {
+                            // skip random: do nothing (they were never removed from stores)
+                            continue;
+                        }
+                        // Pastikan tidak ada duplikasi
+                        removeCardFromStores(cardToReturn);
+                        // Push to store according to tingkat_kesulitan (they might have updated tingkat_kesulitan while in session)
+                        let storeKey = 'KartuBaru';
+                        if (cardToReturn.tingkat_kesulitan === 'ulangi') storeKey = 'KartuUlangi';
+                        else if (cardToReturn.tingkat_kesulitan === 'ragu') storeKey = 'KartuRagu';
+                        else if (cardToReturn.tingkat_kesulitan === 'cukup') storeKey = 'KartuCukup';
+                        else if (cardToReturn.tingkat_kesulitan === 'hafal') storeKey = 'KartuHafal';
+                        allCards[storeKey].push(cardToReturn);
+                    }
+                    // Clear session
+                    currentSessionCards = [];
+                    currentCardIndex = 0;
+                    saveSessionData(currentUser);
+                    saveUserData(currentUser);
+                    document.getElementById('flashcardSessionModal').classList.add('hidden');
+                    updateProgressPage();
+                    renderCardsTable();
+                }
+            } else {
+                document.getElementById('flashcardSessionModal').classList.add('hidden');
+            }
+        };
+    }
+
+    function flipCard() {
+        if (isFlipped) return;
+        isFlipped = true;
+
+        const flipTime = Date.now();
+        const guessTime = (flipTime - startTimeGuess.getTime()) / 1000;
+
+        const card = currentSessionCards[currentCardIndex];
+        // Update guess time and attempts locally (even for random we can show it, but must not persist/update store)
+        card.waktu_lama_tebakan = guessTime;
+        card.jumlah_percobaan = (card.jumlah_percobaan || 0) + 1;
+
+        document.querySelector('.card-front').classList.add('hidden');
+        document.querySelector('.card-back').classList.add('show');
+        document.querySelector('.flashcard-buttons').classList.add('show');
+
+        startTimeRead = new Date();
+    }
+
+    function submitAnswer(isCorrect) {
+        // If session finished, ignore
+        if (currentCardIndex >= currentSessionCards.length) return;
+
+        const card = currentSessionCards[currentCardIndex];
+        const noteInput = document.getElementById('noteInput');
+        if (noteInput) card.catatan_pengguna = noteInput.value;
+
+        if (startTimeRead) {
+            card.lama_baca_kartu = (new Date() - startTimeRead) / 1000;
+        }
+
+        // If card is random -> do NOT update SRS / tingkat_kesulitan / waktu_latihan_ulang / store
+        if (card.isRandom) {
+            // proceed: just advance to next card
+            currentCardIndex++;
+            // prevent random appearing twice (we already ensured when selected)
+            saveSessionData(currentUser);
+            // If reached end
+            if (currentCardIndex >= currentSessionCards.length) {
+                finishSession();
+                return;
+            }
+            showCurrentCardInModal();
+            return;
+        }
+
+        // For non-random card: apply normal update logic
+        card.hasil_tebakan = isCorrect;
+        card.stamp_waktu_sebelumnya = card.stamp_waktu_sekarang || getCurrentWIBTime();
+        card.stamp_waktu_sekarang = getCurrentWIBTime();
+        const timeDiffMs = new Date(card.stamp_waktu_sekarang.replace(' ', 'T') + 'Z') - new Date(card.stamp_waktu_sebelumnya.replace(' ', 'T') + 'Z');
+        card.selisih_waktu_jam = timeDiffMs / (1000 * 60 * 60);
+
+        // Prediksi kesulitan baru menggunakan ML ensemble
+        const featureArray = [card.hasil_tebakan, card.jumlah_percobaan || 0, card.waktu_lama_tebakan || 0, card.lama_baca_kartu || 0, card.selisih_waktu_jam || 0];
+        card.tingkat_kesulitan = predictDifficulty(featureArray);
+
+        // Update SRS berdasarkan aturan
+        if (card.tingkat_kesulitan === 'ulangi') {
+            card.tingkat_SRS = Math.max(1, (card.tingkat_SRS || 1) - 2);
+        } else if (card.tingkat_kesulitan === 'ragu') {
+            card.tingkat_SRS = Math.max(1, (card.tingkat_SRS || 1) - 1);
+        } else if (card.tingkat_kesulitan === 'cukup') {
+            // Tetap
+        } else if (card.tingkat_kesulitan === 'hafal') {
+            card.tingkat_SRS = Math.min(7, (card.tingkat_SRS || 1) + 1);
+        }
+
+        // Update waktu latihan ulang berdasarkan SRS
+        const nextHours = SRS_INTERVALS[card.tingkat_SRS];
+        const nextReviewDate = new Date(new Date(getCurrentWIBTime().replace(' ', 'T') + 'Z').getTime() + nextHours * 60 * 60 * 1000);
+        card.waktu_latihan_ulang = nextReviewDate.toISOString().slice(0, 19).replace('T', ' ');
+
+        card.id_sesi = `S-${sessionStartTime.replace(/[-: ]/g, '').substring(0, 8)}-${card.tingkat_SRS}-${card.id_kartu}`;
+
+        // Now move card to appropriate store immediately
+        removeCardFromStores(card); // ensure no duplicates
+        let targetStore = 'KartuBaru';
+        if (card.tingkat_kesulitan === 'ulangi') targetStore = 'KartuUlangi';
+        else if (card.tingkat_kesulitan === 'ragu') targetStore = 'KartuRagu';
+        else if (card.tingkat_kesulitan === 'cukup') targetStore = 'KartuCukup';
+        else if (card.tingkat_kesulitan === 'hafal') targetStore = 'KartuHafal';
+        allCards[targetStore].push(card);
+
+        // Remove card from currentSessionCards and DO NOT increment currentCardIndex,
+        // because after splice the next card will take current index
+        currentSessionCards.splice(currentCardIndex, 1);
+
+        // Save
+        saveSessionData(currentUser);
+        saveUserData(currentUser);
+
+        // If no more cards in session => finish
+        if (currentCardIndex >= currentSessionCards.length) {
+            finishSession();
+            return;
+        }
+
+        // Show next card (same index after splice)
+        showCurrentCardInModal();
+    }
+
+    function finishSession() {
+        // For any remaining non-random cards in currentSessionCards return them to appropriate store
+        if (currentSessionCards.length > 0) {
+            for (const card of currentSessionCards) {
+                if (card.isRandom) {
+                    // ignore random: they were never removed from stores
+                    continue;
+                }
+                removeCardFromStores(card);
+                let storeKey = 'KartuBaru';
+                if (card.tingkat_kesulitan === 'ulangi') storeKey = 'KartuUlangi';
+                else if (card.tingkat_kesulitan === 'ragu') storeKey = 'KartuRagu';
+                else if (card.tingkat_kesulitan === 'cukup') storeKey = 'KartuCukup';
+                else if (card.tingkat_kesulitan === 'hafal') storeKey = 'KartuHafal';
+                allCards[storeKey].push(card);
+            }
+        }
+
+        // Clear session
+        currentSessionCards = [];
+        currentCardIndex = 0;
+        saveSessionData(currentUser);
+        saveUserData(currentUser);
+
+        document.getElementById('flashcardSessionModal').classList.add('hidden');
+        updateProgressPage();
+        renderCardsTable();
+        alert("Sesi latihan selesai!");
+    }
+
+    // --- NAVIGATION / UI EVENTS ---
+    document.getElementById('navTrainBtn').addEventListener('click', function() {
+        document.querySelectorAll('.content > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById('trainingPage').classList.remove('hidden');
+        this.classList.add('active');
+        document.getElementById('navProgressBtn').classList.remove('active');
+        document.getElementById('navEditBtn').classList.remove('active');
+    });
+
+    document.getElementById('navProgressBtn').addEventListener('click', function() {
+        document.querySelectorAll('.content > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById('progressPage').classList.remove('hidden');
+        updateProgressPage();
+        this.classList.add('active');
+        document.getElementById('navTrainBtn').classList.remove('active');
+        document.getElementById('navEditBtn').classList.remove('active');
+    });
+
+    document.getElementById('navEditBtn').addEventListener('click', function() {
+        document.querySelectorAll('.content > div').forEach(div => div.classList.add('hidden'));
+        document.getElementById('editPage').classList.remove('hidden');
+        renderCardsTable();
+        this.classList.add('active');
+        document.getElementById('navTrainBtn').classList.remove('active');
+        document.getElementById('navProgressBtn').classList.remove('active');
+    });
+
+    document.getElementById('filterText').addEventListener('input', function() {
+        renderCardsTable(this.value, document.getElementById('filterDifficulty').value, document.getElementById('filterSRS').value);
+    });
+    document.getElementById('filterDifficulty').addEventListener('change', function() {
+        renderCardsTable(document.getElementById('filterText').value, this.value, document.getElementById('filterSRS').value);
+    });
+    document.getElementById('filterSRS').addEventListener('change', function() {
+        renderCardsTable(document.getElementById('filterText').value, document.getElementById('filterDifficulty').value, this.value);
+    });
+
+    // Implement sorting for table headers
+    document.querySelectorAll('#cardsTable th[data-sort]').forEach(th => {
+        th.addEventListener('click', function() {
+            const column = this.getAttribute('data-sort');
+            
+            // Reset other headers
+            document.querySelectorAll('#cardsTable th').forEach(header => {
+                header.classList.remove('sort-asc', 'sort-desc');
+            });
+            
+            // Toggle sort direction
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            // Add visual indicator
+            this.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+            
+            // Re-render table with new sort
+            renderCardsTable(
+                document.getElementById('filterText').value, 
+                document.getElementById('filterDifficulty').value, 
+                document.getElementById('filterSRS').value
+            );
+        });
+    });
+
+    document.getElementById('cardsTableBody').addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-edit') || e.target.closest('.btn-edit')) {
+            const btn = e.target.classList.contains('btn-edit') ? e.target : e.target.closest('.btn-edit');
+            const cardId = btn.getAttribute('data-id');
+            const allStores = [...allCards.KartuBaru, ...allCards.KartuUlangi, ...allCards.KartuRagu, ...allCards.KartuCukup, ...allCards.KartuHafal];
+            const card = allStores.find(c => c.id_kartu === cardId);
+            if (card) {
+                document.getElementById('editCardId').value = card.id_kartu;
+                document.getElementById('editFront').value = card.bagian_depan;
+                document.getElementById('editBack1').value = card.bagian_belakang_1;
+                document.getElementById('editBack2').value = card.bagian_belakang_2;
+                document.getElementById('editNote').value = card.catatan_pengguna;
+                document.getElementById('editDifficulty').value = card.tingkat_kesulitan;
+                document.getElementById('editSRS').value = card.tingkat_SRS;
+                document.getElementById('editAttempts').value = card.jumlah_percobaan;
+                document.getElementById('editSessionId').value = card.id_sesi;
+                document.getElementById('editGuessTime').value = card.waktu_lama_tebakan;
+                document.getElementById('editReadTime').value = card.lama_baca_kartu;
+                document.getElementById('editPrevStamp').value = card.stamp_waktu_sebelumnya;
+                document.getElementById('editCurrentStamp').value = card.stamp_waktu_sekarang;
+                document.getElementById('editTimeDiff').value = card.selisih_waktu_jam;
+                document.getElementById('editNextReview').value = card.waktu_latihan_ulang;
+                document.getElementById('editResult').value = card.hasil_tebakan;
+
+                document.getElementById('editCardModal').classList.remove('hidden');
+            }
+        }
+        if (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete')) {
+            const btn = e.target.classList.contains('btn-delete') ? e.target : e.target.closest('.btn-delete');
+            const cardId = btn.getAttribute('data-id');
+            if (confirm("Apakah Anda yakin ingin menghapus kartu ini?")) {
+                for (const storeKey in allCards) {
+                    allCards[storeKey] = allCards[storeKey].filter(c => c.id_kartu !== cardId);
+                }
+                saveUserData(currentUser);
+                renderCardsTable(document.getElementById('filterText').value, document.getElementById('filterDifficulty').value, document.getElementById('filterSRS').value);
+                updateProgressPage();
+            }
+        }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm("Apakah Anda yakin ingin keluar?")) {
+            logout();
+        }
+    });
+
+    document.getElementById('editCardForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const cardId = document.getElementById('editCardId').value;
+        const allStores = [...allCards.KartuBaru, ...allCards.KartuUlangi, ...allCards.KartuRagu, ...allCards.KartuCukup, ...allCards.KartuHafal];
+        const card = allStores.find(c => c.id_kartu === cardId);
+        if (card) {
+            card.bagian_depan = document.getElementById('editFront').value;
+            card.bagian_belakang_1 = document.getElementById('editBack1').value;
+            card.bagian_belakang_2 = document.getElementById('editBack2').value;
+            card.catatan_pengguna = document.getElementById('editNote').value;
+            card.tingkat_kesulitan = document.getElementById('editDifficulty').value;
+            card.tingkat_SRS = parseInt(document.getElementById('editSRS').value);
+            card.jumlah_percobaan = parseInt(document.getElementById('editAttempts').value);
+            card.id_sesi = document.getElementById('editSessionId').value;
+            card.waktu_lama_tebakan = parseFloat(document.getElementById('editGuessTime').value) || 0;
+            card.lama_baca_kartu = parseFloat(document.getElementById('editReadTime').value) || 0;
+            card.stamp_waktu_sebelumnya = document.getElementById('editPrevStamp').value;
+            card.stamp_waktu_sekarang = document.getElementById('editCurrentStamp').value;
+            card.selisih_waktu_jam = parseFloat(document.getElementById('editTimeDiff').value) || 0;
+            card.waktu_latihan_ulang = document.getElementById('editNextReview').value;
+            card.hasil_tebakan = parseInt(document.getElementById('editResult').value);
+
+            saveUserData(currentUser);
+            renderCardsTable(document.getElementById('filterText').value, document.getElementById('filterDifficulty').value, document.getElementById('filterSRS').value);
+            updateProgressPage();
+            document.getElementById('editCardModal').classList.add('hidden');
+        }
+    });
+
+    document.querySelector('.close-modal').addEventListener('click', function() {
+        document.getElementById('editCardModal').classList.add('hidden');
+    });
+    document.querySelector('.modal-buttons .cancel-btn').addEventListener('click', function() {
+        document.getElementById('editCardModal').classList.add('hidden');
+    });
+
+    // Inisialisasi
+    loadUsers();
+</script>
+
+
+
+</body>
+</html>

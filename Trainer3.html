@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcard ML Trainer - FINAL VERSION</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: auto; }
+        input { margin: 5px 0; display: block; }
+        button { margin: 10px 0; padding: 8px 12px; }
+        #modelCode { background: #f4f4f4; padding: 10px; margin-top: 20px; white-space: pre-wrap; border-radius: 8px; }
+        #evalReport { background: #f4f4f4; padding: 10px; margin-top: 20px; border-radius: 8px; white-space: pre-wrap; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        th, td { border: 1px solid #ccc; padding: 6px; }
+        th { background: #eee; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Flashcard ML Trainer – FINAL VERSION</h1>
+    <p>Upload dataset JSON, latih model, dan hasilkan fungsi JavaScript rule-based siap pakai.</p>
+
+    <input type="file" id="fileInput" accept=".json">
+
+    <h3>Pengaturan Training</h3>
+    <label>Max Depth:</label>
+    <input type="number" id="maxDepth" value="12" min="1" max="50">
+
+    <label>Min Node Size:</label>
+    <input type="number" id="minSize" value="3" min="1" max="50">
+
+    <label>Jumlah Pohon (Random Forest):</label>
+    <input type="number" id="numTrees" value="1" min="1">
+
+    <label>Max Features per Split (1–5):</label>
+    <input type="number" id="maxFeatures" value="3" min="1" max="5">
+
+    <label>Bagging Fraction (0.1 – 1):</label>
+    <input type="number" id="bagFraction" value="0.8" step="0.1" min="0.1" max="1">
+
+    <button onclick="trainModel()">Latih Model</button>
+    <button id="downloadBtn" style="display:none;" onclick="downloadModel()">Download Model JS</button>
+    <button id="downloadEvalBtn" style="display:none;" onclick="downloadEval()">Download Evaluasi</button>
+
+    <div id="evaluationResult"></div>
+    <div id="modelCode"></div>
+    <div id="evalReport"></div>
+</div>
+
+
+<script>
+
+/* ---------------------------------------------------
+   BAGIAN PEMROSESAN DATA
+----------------------------------------------------- */
+
+function processData(rows) {
+    if (!Array.isArray(rows)) throw new Error("Dataset harus berupa array objek.");
+
+    let out = [];
+
+    for (let row of rows) {
+        let features = [
+            parseFloat(row.hasil_tebakan),
+            parseFloat(row.jumlah_percobaan),
+            parseFloat(row.waktu_lama_tebakan),
+            parseFloat(row.lama_baca_kartu),
+            parseFloat(row.selisih_waktu_jam)
+        ];
+
+        let label = row.tingkat_kesulitan;
+
+        if (features.every(f => !isNaN(f)) && label)
+            out.push([...features, label]);
+    }
+    return out;
+}
+
+/* ---------------------------------------------------
+   RANDOM UTIL
+----------------------------------------------------- */
+
+function shuffle(arr) {
+    let a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+/* ---------------------------------------------------
+   DECISION TREE + RANDOM FOREST
+----------------------------------------------------- */
+
+function gini(groups, classValues) {
+    let total = groups[0].length + groups[1].length;
+    let g = 0.0;
+
+    for (let group of groups) {
+        if (group.length === 0) continue;
+        let score = 0;
+
+        for (let c of classValues) {
+            let p = group.filter(r => r[r.length - 1] === c).length / group.length;
+            score += p * p;
+        }
+        g += (1.0 - score) * (group.length / total);
+    }
+    return g;
+}
+
+function testSplit(index, value, dataset) {
+    let left = [], right = [];
+    for (let row of dataset) {
+        if (row[index] < value) left.push(row);
+        else right.push(row);
+    }
+    return [left, right];
+}
+
+function getSplit(dataset, maxFeatures) {
+    let classValues = [...new Set(dataset.map(r => r[r.length - 1]))];
+    let featureCount = dataset[0].length - 1;
+
+    let features = shuffle([...Array(featureCount).keys()])
+        .slice(0, maxFeatures);
+
+    let best = { index: -1, value: -1, score: 999, groups: [] };
+
+    for (let idx of features) {
+        for (let row of dataset) {
+            let value = row[idx];
+            let groups = testSplit(idx, value, dataset);
+            let g = gini(groups, classValues);
+
+            if (g < best.score) {
+                best = { index: idx, value: value, score: g, groups };
+            }
+        }
+    }
+    return best;
+}
+
+function toTerminal(group) {
+    let counts = {};
+    for (let r of group) {
+        let label = r[r.length - 1];
+        counts[label] = (counts[label] || 0) + 1;
+    }
+    return counts;
+}
+
+function split(node, maxDepth, minSize, depth, maxFeatures) {
+    let [left, right] = node.groups;
+    delete node.groups;
+
+    if (!left.length || !right.length) {
+        node.left = node.right = toTerminal([...left, ...right]);
+        return;
+    }
+
+    if (depth >= maxDepth) {
+        node.left = toTerminal(left);
+        node.right = toTerminal(right);
+        return;
+    }
+
+    if (left.length <= minSize) node.left = toTerminal(left);
+    else {
+        node.left = getSplit(left, maxFeatures);
+        split(node.left, maxDepth, minSize, depth + 1, maxFeatures);
+    }
+
+    if (right.length <= minSize) node.right = toTerminal(right);
+    else {
+        node.right = getSplit(right, maxFeatures);
+        split(node.right, maxDepth, minSize, depth + 1, maxFeatures);
+    }
+}
+
+function buildTree(train, maxDepth, minSize, maxFeatures) {
+    let root = getSplit(train, maxFeatures);
+    split(root, maxDepth, minSize, 1, maxFeatures);
+    return root;
+}
+
+function predict(node, row) {
+    if (row[node.index] < node.value) {
+        if (node.left.index !== undefined) return predict(node.left, row);
+        return majority(node.left);
+    } else {
+        if (node.right.index !== undefined) return predict(node.right, row);
+        return majority(node.right);
+    }
+}
+
+function majority(leaf) {
+    let best = null, max = -1;
+    for (let [k, v] of Object.entries(leaf)) {
+        if (v > max) { max = v; best = k; }
+    }
+    return best;
+}
+
+/* ----------- RANDOM FOREST ----------- */
+
+function buildForest(dataset, nTrees, maxDepth, minSize, maxFeatures, bagFraction) {
+    let trees = [];
+    let bagSize = Math.floor(dataset.length * bagFraction);
+
+    for (let i = 0; i < nTrees; i++) {
+        let sample = [];
+        while (sample.length < bagSize) {
+            sample.push(dataset[Math.floor(Math.random() * dataset.length)]);
+        }
+        trees.push(buildTree(sample, maxDepth, minSize, maxFeatures));
+    }
+    return trees;
+}
+
+function forestPredict(trees, row) {
+    let votes = {};
+    for (let t of trees) {
+        let p = predict(t, row);
+        votes[p] = (votes[p] || 0) + 1;
+    }
+    return majority(votes);
+}
+
+/* ---------------------------------------------------
+   TRAINING
+----------------------------------------------------- */
+
+let trainedModel = null;
+let evalData = null;
+
+function trainModel() {
+    const file = document.getElementById("fileInput").files[0];
+    if (!file) return alert("Pilih file JSON dulu!");
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        let json = JSON.parse(e.target.result);
+        let data = processData(json);
+
+        let shuffled = shuffle(data);
+        let trainSize = Math.floor(shuffled.length * 0.8);
+
+        let train = shuffled.slice(0, trainSize);
+        let test = shuffled.slice(trainSize);
+
+        const maxDepth = +document.getElementById("maxDepth").value;
+        const minSize = +document.getElementById("minSize").value;
+        const numTrees = +document.getElementById("numTrees").value;
+        const maxFeatures = +document.getElementById("maxFeatures").value;
+        const bagFraction = +document.getElementById("bagFraction").value;
+
+        if (numTrees > 1)
+            trainedModel = buildForest(train, numTrees, maxDepth, minSize, maxFeatures, bagFraction);
+        else
+            trainedModel = buildTree(train, maxDepth, minSize, maxFeatures);
+
+        evaluateModel(test);
+
+        showModelCode();
+
+        document.getElementById("downloadBtn").style.display = "block";
+        document.getElementById("downloadEvalBtn").style.display = "block";
+    };
+
+    reader.readAsText(file);
+}
+
+/* ---------------------------------------------------
+   EVALUATION
+----------------------------------------------------- */
+
+function evaluateModel(testData) {
+    let preds = [];
+    let truths = [];
+
+    for (let row of testData) {
+        let features = row.slice(0, -1);
+        let label = row[row.length - 1];
+
+        let pred = Array.isArray(trainedModel)
+            ? forestPredict(trainedModel, features)
+            : predict(trainedModel, features);
+
+        preds.push(pred);
+        truths.push(label);
+    }
+
+    let labels = [...new Set(truths)];
+
+    // Accuracy
+    let correct = preds.filter((p, i) => p === truths[i]).length;
+    let accuracy = correct / preds.length;
+
+    // Per-class metrics
+    let metrics = {};
+    for (let cls of labels) {
+        let TP = 0, FP = 0, FN = 0, Support = 0;
+
+        for (let i = 0; i < preds.length; i++) {
+            if (truths[i] === cls) Support++;
+            if (preds[i] === cls && truths[i] === cls) TP++;
+            if (preds[i] === cls && truths[i] !== cls) FP++;
+            if (preds[i] !== cls && truths[i] === cls) FN++;
+        }
+
+        let precision = TP / (TP + FP || 1);
+        let recall = TP / (TP + FN || 1);
+        let f1 = (2 * precision * recall) / (precision + recall || 1);
+
+        metrics[cls] = { precision, recall, f1, support: Support };
+    }
+
+    // Macro scores
+    let macroP = 0, macroR = 0, macroF = 0;
+    labels.forEach(cls => {
+        macroP += metrics[cls].precision;
+        macroR += metrics[cls].recall;
+        macroF += metrics[cls].f1;
+    });
+
+    macroP /= labels.length;
+    macroR /= labels.length;
+    macroF /= labels.length;
+
+    // Confusion Matrix
+    let matrix = {};
+    for (let actual of labels) {
+        matrix[actual] = {};
+        for (let pred of labels) {
+            matrix[actual][pred] = 0;
+        }
+    }
+    for (let i = 0; i < preds.length; i++) {
+        matrix[truths[i]][preds[i]]++;
+    }
+
+    // Advanced insights
+    let hardestClass = labels[0];
+    labels.forEach(cls => {
+        if (metrics[cls].f1 < metrics[hardestClass].f1)
+            hardestClass = cls;
+    });
+
+    let errorRate = 1 - accuracy;
+
+    // Build analysis HTML
+    let html = `<h3>Analisa Model</h3>
+        <p><b>Akurasi:</b> ${(accuracy * 100).toFixed(2)}%</p>
+        <p><b>Error Rate:</b> ${(errorRate * 100).toFixed(2)}%</p>
+        <p><b>Macro Precision:</b> ${macroP.toFixed(3)}</p>
+        <p><b>Macro Recall:</b> ${macroR.toFixed(3)}</p>
+        <p><b>Macro F1 Score:</b> ${macroF.toFixed(3)}</p>
+        
+        <h4>Metrik Per-Kelas</h4>
+        <table>
+            <tr><th>Kelas</th><th>Precision</th><th>Recall</th><th>F1</th><th>Support</th></tr>
+    `;
+
+    for (let cls of labels) {
+        let m = metrics[cls];
+        html += `
+            <tr>
+                <td>${cls}</td>
+                <td>${m.precision.toFixed(3)}</td>
+                <td>${m.recall.toFixed(3)}</td>
+                <td>${m.f1.toFixed(3)}</td>
+                <td>${m.support}</td>
+            </tr>
+        `;
+    }
+
+    html += `</table>`;
+
+    html += `<h4>Confusion Matrix</h4>
+        <table>
+            <tr><th>Actual \\ Predicted</th>${labels.map(l => `<th>${l}</th>`).join("")}</tr>
+    `;
+
+    for (let actual of labels) {
+        html += `<tr><td><b>${actual}</b></td>`;
+        for (let pred of labels) {
+            html += `<td>${matrix[actual][pred]}</td>`;
+        }
+        html += `</tr>`;
+    }
+
+    html += `</table>`;
+
+    html += `
+        <h4>Analisa Tambahan</h4>
+        <p><b>Kelas paling sulit diprediksi:</b> ${hardestClass}</p>
+        <p>Kelas dengan F1 terendah menunjukkan area yang perlu data tambahan.</p>
+        <p>Distribusi label sebenarnya: ${JSON.stringify(labels.map(l => metrics[l].support))}</p>
+        <p>Distribusi hasil prediksi: ${JSON.stringify(preds.reduce((a,c)=>{a[c]=(a[c]||0)+1;return a;},{}))}</p>
+    `;
+
+    document.getElementById("evaluationResult").innerHTML = html;
+
+    evalData = { accuracy, metrics, matrix, preds, truths };
+}
+
+
+/* ---------------------------------------------------
+   GENERATE JAVASCRIPT MODEL
+----------------------------------------------------- */
+
+function generateJS(tree, depth=0) {
+    let indent = "  ".repeat(depth);
+
+    if (tree.index !== undefined) {
+        let cond = `row[${tree.index}] < ${tree.value}`;
+        let left = generateJS(tree.left, depth + 1);
+        let right = generateJS(tree.right, depth + 1);
+
+        return `${indent}if (${cond}) {\n${left}\n${indent}} else {\n${right}\n${indent}}`;
+    } else {
+        return `${indent}return "${majority(tree)}";`;
+    }
+}
+
+function showModelCode() {
+    let out = "";
+
+    if (Array.isArray(trainedModel)) {
+        let trees = trainedModel.map(t => generateJS(t));
+
+        out = `
+function predictDifficulty(row) {
+    const trees = [
+${trees.map(t => "        function(row){\n" + t + "\n        }").join(",\n")}
+    ];
+
+    let votes = {};
+    for (let t of trees) {
+        let p = t(row);
+        votes[p] = (votes[p] || 0) + 1;
+    }
+
+    let best = null, max = -1;
+    for (let k in votes) {
+        if (votes[k] > max) { max = votes[k]; best = k; }
+    }
+    return best;
+}
+        `;
+    } else {
+        let rule = generateJS(trainedModel);
+        out = `
+function predictDifficulty(row) {
+${rule}
+}
+        `;
+    }
+
+    document.getElementById("modelCode").textContent = out;
+}
+
+/* ---------------------------------------------------
+   DOWNLOAD
+----------------------------------------------------- */
+
+function downloadModel() {
+    let code = document.getElementById("modelCode").textContent;
+    let blob = new Blob([code], { type: "text/plain" });
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "flashcard_model.js";
+    a.click();
+}
+
+function downloadEval() {
+    let blob = new Blob([JSON.stringify(evalData, null, 2)], { type: "application/json" });
+    let url = URL.createObjectURL(blob);
+
+    let a = document.createElement("a");
+    a.href = url;
+    a.download = "evaluasi_model.json";
+    a.click();
+}
+
+</script>
+
+</body>
+</html>
